@@ -11,7 +11,7 @@ This example shows how to:
 
 import logging
 from datetime import datetime, timedelta
-from forex_bot.data import (
+from mpers_bot.data import (
     MarketDataFetcher,
     DataCache,
     DataValidator,
