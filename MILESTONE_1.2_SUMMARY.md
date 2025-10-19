@@ -127,7 +127,7 @@ All six required timeframes implemented:
 ## 📁 File Structure
 
 ```bash
-src/forex_bot/data/
+src/mpers_bot/data/
 ├── __init__.py          # Module exports
 ├── structures.py        # OHLCV data structures (93 statements, 100% coverage)
 ├── fetcher.py          # Market data fetching (77 statements, 99% coverage)
