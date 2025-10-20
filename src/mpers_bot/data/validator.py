@@ -46,29 +46,37 @@ class DataValidator:
 
         # Check for NaN values
         if any(
-            pd.isna(val)
-            for val in [candle.open, candle.high, candle.low, candle.close, candle.volume]
+            pd.isna(val) for val in [
+                candle.open,
+                candle.high,
+                candle.low,
+                candle.close,
+                candle.volume,
+            ]
         ):
             errors.append("Candle contains NaN values")
 
         # Check price relationships
         if candle.high < candle.open or candle.high < candle.close:
             errors.append(
-                f"High price {candle.high} is less than open/close "
-                f"({candle.open}/{candle.close})"
+                "High price %s is less than open/close (%s/%s)"
+                % (candle.high, candle.open, candle.close)
             )
 
         if candle.low > candle.open or candle.low > candle.close:
             errors.append(
-                f"Low price {candle.low} is greater than open/close "
-                f"({candle.open}/{candle.close})"
+                "Low price %s is greater than open/close (%s/%s)"
+                % (candle.low, candle.open, candle.close)
             )
 
         # Check for negative values
         if candle.volume < 0:
             errors.append(f"Volume is negative: {candle.volume}")
 
-        if any(price < 0 for price in [candle.open, candle.high, candle.low, candle.close]):
+        if any(
+            price < 0
+            for price in [candle.open, candle.high, candle.low, candle.close]
+        ):
             errors.append("Price values cannot be negative")
 
         # Check for zero prices (unusual but not impossible)
@@ -78,7 +86,10 @@ class DataValidator:
             logger.warning(f"Candle at {candle.timestamp} has zero price values")
 
         if errors:
-            error_msg = f"Candle validation failed at {candle.timestamp}: {'; '.join(errors)}"
+            error_msg = (
+                "Candle validation failed at %s: %s"
+                % (candle.timestamp, "; ".join(errors))
+            )
             if self.strict_mode:
                 raise ValidationError(error_msg)
             logger.warning(error_msg)
@@ -115,7 +126,7 @@ class DataValidator:
         # Check for duplicate timestamps
         timestamps = [c.timestamp for c in ohlcv.candles]
         if len(timestamps) != len(set(timestamps)):
-            error_msg = f"OHLCV for {ohlcv.symbol} contains duplicate timestamps"
+            error_msg = "OHLCV for %s contains duplicate timestamps" % ohlcv.symbol
             if self.strict_mode:
                 raise ValidationError(error_msg)
             logger.warning(error_msg)
@@ -124,7 +135,9 @@ class DataValidator:
         # Check if candles are sorted by timestamp
         sorted_timestamps = sorted(timestamps)
         if timestamps != sorted_timestamps:
-            error_msg = f"OHLCV for {ohlcv.symbol} candles are not sorted by timestamp"
+            error_msg = (
+                "OHLCV for %s candles are not sorted by timestamp" % ohlcv.symbol
+            )
             logger.info(error_msg)
             # This is automatically fixed by OHLCV, so not an error
 
@@ -154,17 +167,21 @@ class DataValidator:
             delta = ohlcv.candles[i].timestamp - ohlcv.candles[i - 1].timestamp
             if delta != expected_delta:
                 inconsistencies.append(
-                    f"Gap between candles {i-1} and {i}: expected {expected_delta}, "
-                    f"got {delta}"
+                    "Gap between candles %d and %d: expected %s, got %s"
+                    % (i - 1, i, expected_delta, delta)
                 )
 
         if inconsistencies:
             error_msg = (
-                f"Timeframe consistency issues for {ohlcv.symbol} "
-                f"{ohlcv.timeframe.value}: {'; '.join(inconsistencies[:5])}"
+                "Timeframe consistency issues for %s %s: %s"
+                % (
+                    ohlcv.symbol,
+                    ohlcv.timeframe.value,
+                    "; ".join(inconsistencies[:5]),
+                )
             )
             if len(inconsistencies) > 5:
-                error_msg += f" (and {len(inconsistencies) - 5} more)"
+                error_msg += " (and %d more)" % (len(inconsistencies) - 5)
 
             logger.warning(error_msg)
             return False
@@ -249,10 +266,20 @@ class DataValidator:
         for i in range(1, len(ohlcv.candles)):
             delta = ohlcv.candles[i].timestamp - ohlcv.candles[i - 1].timestamp
             if delta > max_gap:
-                gaps.append((ohlcv.candles[i - 1].timestamp, ohlcv.candles[i].timestamp))
+                gaps.append(
+                    (
+                        ohlcv.candles[i - 1].timestamp,
+                        ohlcv.candles[i].timestamp,
+                    )
+                )
 
         if gaps:
-            logger.info(f"Found {len(gaps)} data gaps in {ohlcv.symbol} {ohlcv.timeframe.value}")
+            logger.info(
+                "Found %d data gaps in %s %s",
+                len(gaps),
+                ohlcv.symbol,
+                ohlcv.timeframe.value,
+            )
 
         return gaps
 

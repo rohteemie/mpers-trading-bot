@@ -1,7 +1,7 @@
 """Tests for data structures module"""
 
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime
 import pandas as pd
 from mpers_bot.data.structures import Candle, OHLCV, Timeframe
 

@@ -34,7 +34,7 @@ class TestDataValidator:
         # NaN values don't raise ValueError in Candle creation,
         # but validator should catch them
         # We need to bypass the Candle validation to test the validator
-        import pandas as pd
+        # import pandas as pd
 
         # Create a valid candle first
         candle = Candle(

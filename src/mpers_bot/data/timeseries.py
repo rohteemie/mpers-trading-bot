@@ -44,8 +44,9 @@ class TimeSeriesHandler:
         """
         if ohlcv.timeframe.minutes >= target_timeframe.minutes:
             raise ValueError(
-                f"Cannot resample from {ohlcv.timeframe.value} to "
-                f"{target_timeframe.value}. Target must be higher timeframe."
+                "Cannot resample from %s to %s. Target must be higher timeframe.",
+                ohlcv.timeframe.value,
+                target_timeframe.value,
             )
 
         # Convert to DataFrame for easier resampling
@@ -72,8 +73,11 @@ class TimeSeriesHandler:
         )
 
         logger.info(
-            f"Resampled {len(ohlcv)} candles from {ohlcv.timeframe.value} to "
-            f"{target_timeframe.value}, resulting in {len(result)} candles"
+            "Resampled %d candles from %s to %s, resulting in %d candles",
+            len(ohlcv),
+            ohlcv.timeframe.value,
+            target_timeframe.value,
+            len(result),
         )
 
         return result
@@ -114,18 +118,24 @@ class TimeSeriesHandler:
         df = df.rename(columns={"index": "timestamp"})
 
         # Convert back to OHLCV
-        result = OHLCV.from_dataframe(df, symbol=ohlcv.symbol, timeframe=ohlcv.timeframe)
+        result = OHLCV.from_dataframe(
+            df, symbol=ohlcv.symbol, timeframe=ohlcv.timeframe
+        )
 
         if len(result) > len(ohlcv):
             logger.info(
-                f"Forward filled {len(result) - len(ohlcv)} missing candles for "
-                f"{ohlcv.symbol}"
+                "Forward filled %d missing candles for %s",
+                len(result) - len(ohlcv),
+                ohlcv.symbol,
             )
 
         return result
 
     def slice_by_time(
-        self, ohlcv: OHLCV, start: Optional[datetime] = None, end: Optional[datetime] = None
+        self,
+        ohlcv: OHLCV,
+        start: Optional[datetime] = None,
+        end: Optional[datetime] = None,
     ) -> OHLCV:
         """
         Slice OHLCV data by time range
@@ -149,8 +159,12 @@ class TimeSeriesHandler:
         result = OHLCV(symbol=ohlcv.symbol, timeframe=ohlcv.timeframe, candles=candles)
 
         logger.debug(
-            f"Sliced {len(ohlcv)} candles to {len(result)} candles for "
-            f"{ohlcv.symbol} from {start} to {end}"
+            "Sliced %d candles to %d candles for %s from %s to %s",
+            len(ohlcv),
+            len(result),
+            ohlcv.symbol,
+            start,
+            end,
         )
 
         return result
@@ -172,7 +186,7 @@ class TimeSeriesHandler:
         windows = []
 
         for i in range(0, len(ohlcv) - window_size + 1, step):
-            window_candles = ohlcv.candles[i : i + window_size]
+            window_candles = ohlcv.candles[i:i + window_size]
             window = OHLCV(
                 symbol=ohlcv.symbol,
                 timeframe=ohlcv.timeframe,
@@ -181,8 +195,10 @@ class TimeSeriesHandler:
             windows.append(window)
 
         logger.debug(
-            f"Created {len(windows)} rolling windows of size {window_size} for "
-            f"{ohlcv.symbol}"
+            "Created %d rolling windows of size %d for %s",
+            len(windows),
+            window_size,
+            ohlcv.symbol,
         )
 
         return windows
@@ -251,8 +267,10 @@ class TimeSeriesHandler:
             result.append(ohlcv)
 
         logger.info(
-            f"Aligned {len(series_list)} series using {method} method, "
-            f"resulting in {len(result[0])} common candles"
+            "Aligned %d series using %s method, resulting in %d common candles",
+            len(series_list),
+            method,
+            len(result[0]),
         )
 
         return result
@@ -296,7 +314,9 @@ class TimeSeriesHandler:
             high_low = df["high"] - df["low"]
             high_close = abs(df["high"] - df["close"].shift())
             low_close = abs(df["low"] - df["close"].shift())
-            true_range = pd.concat([high_low, high_close, low_close], axis=1).max(axis=1)
+            true_range = pd.concat(
+                [high_low, high_close, low_close], axis=1
+            ).max(axis=1)
             volatility = true_range.rolling(window=window).mean()
         else:
             raise ValueError(f"Unknown volatility method: {method}")

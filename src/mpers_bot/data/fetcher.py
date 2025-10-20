@@ -119,8 +119,11 @@ class MarketDataFetcher(DataFetcherInterface):
                     start_date = end_date - timedelta(minutes=100 * timeframe.minutes)
 
             logger.info(
-                f"Fetching OHLCV data for {symbol} {timeframe.value} "
-                f"from {start_date} to {end_date}"
+                "Fetching OHLCV data for %s %s from %s to %s",
+                symbol,
+                timeframe.value,
+                start_date,
+                end_date,
             )
 
             # Generate sample data
@@ -130,7 +133,7 @@ class MarketDataFetcher(DataFetcherInterface):
 
             ohlcv = OHLCV(symbol=symbol, timeframe=timeframe, candles=candles)
 
-            logger.info(f"Fetched {len(ohlcv)} candles for {symbol}")
+            logger.info("Fetched %d candles for %s", len(ohlcv), symbol)
             return ohlcv
 
         except Exception as e:
@@ -155,21 +158,25 @@ class MarketDataFetcher(DataFetcherInterface):
             if symbol not in self.available_symbols:
                 raise DataFetcherError(f"Symbol {symbol} not available")
 
-            logger.info(f"Fetching latest candle for {symbol} {timeframe.value}")
+            logger.info(
+                "Fetching latest candle for %s %s", symbol, timeframe.value
+            )
 
             # Get the latest candle timestamp
             now = datetime.now()
             # Round down to nearest timeframe interval
             minutes_offset = now.minute % timeframe.minutes
             candle_time = now - timedelta(
-                minutes=minutes_offset, seconds=now.second, microseconds=now.microsecond
+                minutes=minutes_offset,
+                seconds=now.second,
+                microseconds=now.microsecond,
             )
 
             # Generate a sample candle
             base_price = self._get_base_price(symbol)
             candle = self._generate_candle(candle_time, base_price, timeframe)
 
-            logger.info(f"Fetched latest candle for {symbol} at {candle_time}")
+            logger.info("Fetched latest candle for %s at %s", symbol, candle_time)
             return candle
 
         except Exception as e:
@@ -186,7 +193,11 @@ class MarketDataFetcher(DataFetcherInterface):
         return self.available_symbols.copy()
 
     def _generate_sample_data(
-        self, symbol: str, timeframe: Timeframe, start_date: datetime, end_date: datetime
+        self,
+        symbol: str,
+        timeframe: Timeframe,
+        start_date: datetime,
+        end_date: datetime,
     ) -> list:
         """Generate sample OHLCV data"""
         candles = []

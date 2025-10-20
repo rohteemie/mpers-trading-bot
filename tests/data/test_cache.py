@@ -1,7 +1,6 @@
 """Tests for data cache module"""
 
 import pytest
-from datetime import datetime, timedelta
 from pathlib import Path
 import tempfile
 from mpers_bot.data.cache import DataCache

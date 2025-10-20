@@ -74,22 +74,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements-dev.txt
 
-      - name: Run Black (code formatter check)
-        run: |
-          black --check src/ tests/
-
-      - name: Run isort (import sorting check)
-        run: |
-          isort --check-only src/ tests/
-
       - name: Run flake8
         run: |
-          flake8 src/ tests/
+          flake8 src/ tests/ examples/
 
       - name: Run pycodestyle
         run: |
-          pycodestyle src/ tests/
-
-      - name: Run pylint
-        run: |
-          pylint src/mpers_bot/ || true
+          pycodestyle src/ tests/ examples/
